@@ -1,0 +1,21 @@
+{
+  "name": "tendril",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "deploy": "bun run scripts/deploy.ts",
+    "execute": "bun run scripts/execute.ts",
+    "plant": "bun run scripts/plant.ts",
+    "predict": "bun run scripts/predict.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "viem": "^2.47.6"
+  }
+}
