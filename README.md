@@ -1,5 +1,7 @@
 # Tendril
 
+![Tendril](./tendril_logo.svg)
+
 Cross-chain contract management from a single root address. Deploy and control contracts on any EVM chain that eventually settles to Ethereum (L2, L3, L4+) through tendrils that are guaranteed to be at the same address.
 
 ## How it works

@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { CHAINS } from "./cli/chains";
-import { printContext } from "./cli/logger";
+import { printContext, c } from "./cli/logger";
 import { plant } from "./cli/plant";
 import { address } from "./cli/address";
 import { execute } from "./cli/execute";
@@ -11,6 +11,21 @@ export const program = new Command();
 program
   .name("tendril")
   .description("CLI for managing tendrils cross-chain deployments")
+  .configureHelp({
+    styleTitle: (str) => c.bold(c.foreground(str)),
+    styleUsage: (str) => c.accent(str),
+    styleCommandText: (str) => c.accent(str),
+    styleCommandDescription: (str) => c.muted(str),
+    styleOptionText: (str) => c.deepGreen(str),
+    styleOptionDescription: (str) => c.muted(str),
+    styleSubcommandText: (str) => c.accent(str),
+    styleSubcommandDescription: (str) => c.muted(str),
+    styleArgumentText: (str) => c.blue(str),
+    styleArgumentDescription: (str) => c.muted(str),
+  })
+  .configureOutput({
+    outputError: (str, write) => write(c.bold(c.foreground(str))),
+  })
   .option(
     "--mainnet",
     "Use mainnet (default: sepolia)",

@@ -1,0 +1,51 @@
+<svg width="100%" viewBox="0 0 680 290" xmlns="http://www.w3.org/2000/svg">
+<defs>
+
+</defs>
+
+<!-- Dark background -->
+<rect width="680" height="280" fill="#0a0a09" style="fill:rgb(10, 10, 9);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Glyph center: 170, 140 -->
+
+<!-- Outer atmosphere -->
+<circle cx="170" cy="140" r="90" fill="#0F6E56" opacity="0.08" style="fill:rgb(15, 110, 86);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.08;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<circle cx="170" cy="140" r="72" fill="#0F6E56" opacity="0.10" style="fill:rgb(15, 110, 86);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Dark hex body -->
+<polygon points="170,72 234,108 234,180 170,216 106,180 106,108" fill="#0d1f1a" stroke="#2a5c48" stroke-width="1" style="fill:rgb(13, 31, 26);stroke:rgb(42, 92, 72);color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Gold hex outline (faint, like the original) -->
+<polygon points="170,72 234,108 234,180 170,216 106,180 106,108" fill="none" stroke="#8a7a3a" stroke-width="0.8" opacity="0.5" style="fill:none;stroke:rgb(138, 122, 58);color:rgb(255, 255, 255);stroke-width:0.8px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.5;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Spiral arcs -->
+<path d="M170,130 C177,130 184,134 184,141 C184,149 177,155 170,155 C163,155 156,149 156,142 C156,138 158,134 162,132" fill="none" stroke="#1D9E75" stroke-width="2.2" stroke-linecap="round" style="fill:none;stroke:rgb(29, 158, 117);color:rgb(255, 255, 255);stroke-width:2.2px;stroke-linecap:round;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<path d="M162,132 C153,124 144,130 141,140 C137,153 144,168 157,174 C170,181 187,177 196,166 C206,154 205,137 196,126 C186,114 170,111 157,116 C145,121 137,133 136,145" fill="none" stroke="#1D9E75" stroke-width="1.7" stroke-linecap="round" opacity="0.85" style="fill:none;stroke:rgb(29, 158, 117);color:rgb(255, 255, 255);stroke-width:1.7px;stroke-linecap:round;stroke-linejoin:miter;opacity:0.85;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<path d="M136,145 C134,128 141,111 153,101 C167,90 187,90 200,101 C215,112 222,133 217,152 C212,173 196,187 176,190 C154,194 133,182 123,161 C113,141 117,116 131,101" fill="none" stroke="#1D9E75" stroke-width="1.3" stroke-linecap="round" opacity="0.6" style="fill:none;stroke:rgb(29, 158, 117);color:rgb(255, 255, 255);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:miter;opacity:0.6;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<path d="M131,101 C119,86 117,64 129,49 C141,34 162,30 182,37 C204,44 219,64 219,86" fill="none" stroke="#1D9E75" stroke-width="0.9" stroke-linecap="round" opacity="0.35" style="fill:none;stroke:rgb(29, 158, 117);color:rgb(255, 255, 255);stroke-width:0.9px;stroke-linecap:round;stroke-linejoin:miter;opacity:0.35;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Tendril curls breaking out of hex -->
+<!-- Top-right -->
+<path d="M200,37 C207,25 221,22 229,30 C237,38 234,52 225,55 C217,58 209,51 210,43" fill="none" stroke="#5DCAA5" stroke-width="1.3" stroke-linecap="round" opacity="0.8" style="fill:none;stroke:rgb(93, 202, 165);color:rgb(255, 255, 255);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:miter;opacity:0.8;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<ellipse cx="232" cy="22" rx="9" ry="4.5" fill="#0F6E56" opacity="0.6" transform="rotate(-28 232 22)" style="fill:rgb(15, 110, 86);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.6;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Right -->
+<path d="M219,86 C232,79 246,84 248,97 C250,108 241,116 232,112" fill="none" stroke="#5DCAA5" stroke-width="1.3" stroke-linecap="round" opacity="0.8" style="fill:none;stroke:rgb(93, 202, 165);color:rgb(255, 255, 255);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:miter;opacity:0.8;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<ellipse cx="251" cy="78" rx="9" ry="4.5" fill="#0F6E56" opacity="0.6" transform="rotate(12 251 78)" style="fill:rgb(15, 110, 86);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.6;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Bottom-left -->
+<path d="M123,161 C111,171 97,167 93,154 C89,141 98,130 109,133" fill="none" stroke="#5DCAA5" stroke-width="1.3" stroke-linecap="round" opacity="0.8" style="fill:none;stroke:rgb(93, 202, 165);color:rgb(255, 255, 255);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:miter;opacity:0.8;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<ellipse cx="89" cy="172" rx="9" ry="4.5" fill="#0F6E56" opacity="0.6" transform="rotate(148 89 172)" style="fill:rgb(15, 110, 86);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.6;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Center dot -->
+<circle cx="170" cy="140" r="7" fill="#1D9E75" opacity="0.3" style="fill:rgb(29, 158, 117);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.3;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<circle cx="170" cy="140" r="5" fill="#5DCAA5" style="fill:rgb(93, 202, 165);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<circle cx="170" cy="140" r="2.5" fill="#d4f5eb" style="fill:rgb(212, 245, 235);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+<!-- Wordmark -->
+<text x="296" y="128" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="68" font-weight="200" letter-spacing="-1.5" fill="#e8e6de" style="fill:rgb(232, 230, 222);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif;font-size:68px;font-weight:200;text-anchor:start;dominant-baseline:auto">tendril</text>
+
+<!-- Tagline only, no rule, no badges -->
+<text x="298" y="162" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="15" font-weight="300" letter-spacing="1.5" fill="#5DCAA5" opacity="0.75" style="fill:rgb(93, 202, 165);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.75;font-family:&quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif;font-size:15px;font-weight:300;text-anchor:start;dominant-baseline:auto">cross-chain contract management</text>
+
+</svg>

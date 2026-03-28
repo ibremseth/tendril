@@ -13,25 +13,25 @@ import { parseChain, getRpcUrl, ChainType, getRootChainId } from "./chains";
 import { verbose, success, error } from "./logger";
 import type { TendrilChain } from "./chains";
 
-const ARB_ERC20_INBOX_ABI = [
-  {
-    name: "unsafeCreateRetryableTicket",
-    type: "function",
-    inputs: [
-      { name: "to", type: "address" },
-      { name: "l2CallValue", type: "uint256" },
-      { name: "maxSubmissionCost", type: "uint256" },
-      { name: "excessFeeRefundAddress", type: "address" },
-      { name: "callValueRefundAddress", type: "address" },
-      { name: "gasLimit", type: "uint256" },
-      { name: "maxFeePerGas", type: "uint256" },
-      { name: "tokenTotalFeeAmount", type: "uint256" },
-      { name: "data", type: "bytes" },
-    ],
-    outputs: [{ name: "", type: "uint256" }],
-    stateMutability: "nonpayable",
-  },
-] as const;
+// const ARB_ERC20_INBOX_ABI = [
+//   {
+//     name: "unsafeCreateRetryableTicket",
+//     type: "function",
+//     inputs: [
+//       { name: "to", type: "address" },
+//       { name: "l2CallValue", type: "uint256" },
+//       { name: "maxSubmissionCost", type: "uint256" },
+//       { name: "excessFeeRefundAddress", type: "address" },
+//       { name: "callValueRefundAddress", type: "address" },
+//       { name: "gasLimit", type: "uint256" },
+//       { name: "maxFeePerGas", type: "uint256" },
+//       { name: "tokenTotalFeeAmount", type: "uint256" },
+//       { name: "data", type: "bytes" },
+//     ],
+//     outputs: [{ name: "", type: "uint256" }],
+//     stateMutability: "nonpayable",
+//   },
+// ] as const;
 
 const ARB_INBOX_ABI = [
   {
@@ -145,8 +145,8 @@ export async function executeRaw({
   while (currentChain.parent != "") {
     const { data, value } = wrap(currentChain, {
       toAddress,
-      value: rawValue ?? BigInt(0), // TODO: Add cli param for this
-      gasLimit: gasLimit ?? BigInt(500_000), // TODO: Do this better
+      value: rawValue ?? BigInt(0),
+      gasLimit: gasLimit ?? BigInt(500_000), // TODO: Use a real estimate
       data: calldata,
       refundAddress: tendrilAddress,
     });
@@ -210,7 +210,9 @@ function wrap(
     case ChainType.ARB:
       return wrapArb(input);
     case ChainType.ARB_ERC20:
-      return wrapArbERC20(input);
+      // TODO: Suport ERC20 Arb chains
+      throw Error(`ERC20 chain not supported yet`);
+    // return wrapArbERC20(input);
     default:
       throw Error(`Unwrappable chain: ${chain.type}`);
   }
@@ -239,8 +241,10 @@ function wrapArb({
 }: WrapInput) {
   // Estimate submission cost: (1400 + 6 * dataBytes) * baseFee
   const dataBytes = BigInt(data.length / 2 - 1); // hex string to byte count
+  // TODO: Use a real estimate
   const baseFee = 30n * BigInt(1e9); // 30 gwei — conservative L1 estimate
   const maxSubmissionCost = (1400n + 6n * dataBytes) * baseFee;
+  // TODO: Use a real estimate
   const maxFeePerGas = BigInt(1e9); // 1 gwei
 
   return {
@@ -262,33 +266,33 @@ function wrapArb({
   };
 }
 
-function wrapArbERC20({
-  toAddress,
-  value,
-  gasLimit,
-  data,
-  refundAddress,
-}: WrapInput) {
-  // Hardcoded high — excess refunds to the Tendril contract
-  const maxFeePerGas = BigInt(1e9); // 1 gwei
-  const tokenTotalFeeAmount = value + gasLimit * maxFeePerGas;
+// function wrapArbERC20({
+//   toAddress,
+//   value,
+//   gasLimit,
+//   data,
+//   refundAddress,
+// }: WrapInput) {
+//   // Hardcoded high — excess refunds to the Tendril contract
+//   const maxFeePerGas = BigInt(1e9); // 1 gwei
+//   const tokenTotalFeeAmount = value + gasLimit * maxFeePerGas;
 
-  return {
-    data: encodeFunctionData({
-      abi: ARB_ERC20_INBOX_ABI,
-      functionName: "unsafeCreateRetryableTicket",
-      args: [
-        toAddress,
-        value,
-        BigInt(0), // This is hardcoded to 0 for ERC20 chains
-        refundAddress,
-        refundAddress,
-        gasLimit,
-        maxFeePerGas,
-        tokenTotalFeeAmount,
-        data,
-      ],
-    }),
-    value: BigInt(0),
-  };
-}
+//   return {
+//     data: encodeFunctionData({
+//       abi: ARB_ERC20_INBOX_ABI,
+//       functionName: "unsafeCreateRetryableTicket",
+//       args: [
+//         toAddress,
+//         value,
+//         BigInt(0), // This is hardcoded to 0 for ERC20 chains
+//         refundAddress,
+//         refundAddress,
+//         gasLimit,
+//         maxFeePerGas,
+//         tokenTotalFeeAmount,
+//         data,
+//       ],
+//     }),
+//     value: BigInt(0),
+//   };
+// }

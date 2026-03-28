@@ -10,7 +10,7 @@ import {
   SALT,
   getRoot,
 } from "./utils";
-import { parseChain, getRpcUrl, getRootChainId } from "./chains";
+import { parseChain, getRpcUrl, getRootChainId, ChainType } from "./chains";
 import { verbose, success, error, info } from "./logger";
 import { executeRaw } from "./execute";
 
@@ -39,7 +39,7 @@ export async function plant(chainName: string, opts: { direct?: boolean }) {
   );
   const deployData = concat([SALT, BYTECODE, constructorArgs]);
 
-  if (opts.direct) {
+  if (opts.direct || BigInt(chain.id) === getRootChainId()) {
     info("Planting new tendril directly");
     if (program.opts().sim) {
       const client = getClient(chain.rpc);
