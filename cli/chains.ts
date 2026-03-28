@@ -1,3 +1,4 @@
+import { program } from "../cli";
 import type { Address } from "viem";
 
 export type TendrilChain = {
@@ -84,8 +85,8 @@ export function parseChain(name: string): TendrilChain {
   return chain;
 }
 
-export function getRootChainId(mainnet: boolean): bigint {
-  return mainnet ? 1n : 11155111n;
+export function getRootChainId(): bigint {
+  return program.opts().mainnet ? 1n : 11155111n;
 }
 
 export function getRpcUrl(chain: TendrilChain) {

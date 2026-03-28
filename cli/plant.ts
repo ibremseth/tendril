@@ -11,9 +11,8 @@ import {
 import { parseChain, getRpcUrl, getRootChainId } from "./chains";
 
 export async function plant(chainName: string) {
-  const opts = program.opts();
-  const root = opts.root as string;
-  const rootChainId = getRootChainId(opts.mainnet);
+  const root = program.opts().root as string;
+  const rootChainId = getRootChainId();
   const chain = parseChain(chainName);
   const rpcUrl = getRpcUrl(chain);
 
@@ -30,8 +29,14 @@ export async function plant(chainName: string) {
   );
   const deployData = concat([SALT, BYTECODE, constructorArgs]);
 
-  if (process.env["PRIVATE_KEY"]) {
-    const wallet = getWalletClient(rpcUrl);
+  if (program.opts().sim) {
+    const result = await client.call({
+      to: ARACHNID,
+      data: deployData,
+    });
+    console.log("Simulation success:", result);
+  } else {
+    const wallet = await getWalletClient(rpcUrl);
     console.log("Deployer:", wallet.account!.address);
     const result = await wallet.sendTransaction({
       chain: { id: chain.id } as any,
@@ -39,11 +44,5 @@ export async function plant(chainName: string) {
       data: deployData,
     });
     console.log("Transaction result:", result);
-  } else {
-    const result = await client.call({
-      to: ARACHNID,
-      data: deployData,
-    });
-    console.log("Simulation success:", result);
   }
 }

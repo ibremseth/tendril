@@ -3,7 +3,7 @@ import type { Hex, Address } from "viem";
 
 import { program } from "../cli";
 import { getClient, getWalletClient, getTendrilAddress } from "./utils";
-import { parseChain, getRpcUrl, ChainType } from "./chains";
+import { parseChain, getRpcUrl, ChainType, getRootChainId } from "./chains";
 import type { TendrilChain } from "./chains";
 
 const ARB_INBOX_ABI = [
@@ -93,39 +93,44 @@ export async function execute(
   let currentChain = chain;
   while (currentChain.parent != "") {
     const wrappedCall = wrap(currentChain, {
-      toAddress: chain.bridge,
-      value: BigInt(0),
-      gasLimit: BigInt(0),
+      toAddress: tendrilAddress,
+      value: BigInt(0), // TODO: Add cli param for this
+      gasLimit: BigInt(500_000), // TODO: Do this better
       data: calldata,
       refundAddress: tendrilAddress,
     });
     calldata = encodeFunctionData({
       abi: TENDRIL_EXECUTE_ABI,
       functionName: "execute",
-      args: [toAddress, wrappedCall],
+      args: [chain.bridge, wrappedCall],
     });
 
     currentChain = parseChain(currentChain.parent);
   }
 
+  if (BigInt(currentChain.id) !== getRootChainId()) {
+    console.error(`Error: Wrong root for target chain`);
+    process.exit(1);
+  }
+
   console.log("Final calldata:", calldata);
 
-  if (process.env["PRIVATE_KEY"]) {
-    const wallet = getWalletClient(getRpcUrl(chain));
-    console.log("Sender:", wallet.account!.address);
-    const result = await wallet.sendTransaction({
-      chain: { id: chain.id } as any,
-      to: tendrilAddress,
-      data: calldata,
-    });
-    console.log("Transaction:", result);
-  } else {
-    const client = getClient(getRpcUrl(chain));
+  if (program.opts().sim) {
+    const client = getClient(getRpcUrl(currentChain));
     const result = await client.call({
       to: tendrilAddress,
       data: calldata,
     });
     console.log("Simulation success:", result);
+  } else {
+    const wallet = await getWalletClient(getRpcUrl(currentChain));
+    console.log("Sender:", wallet.account!.address);
+    const result = await wallet.sendTransaction({
+      chain: { id: currentChain.id } as any,
+      to: tendrilAddress,
+      data: calldata,
+    });
+    console.log("Transaction:", result);
   }
 }
 

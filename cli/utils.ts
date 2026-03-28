@@ -24,10 +24,38 @@ export function getClient(rpcUrl: string) {
   return createPublicClient({ transport: http(rpcUrl) });
 }
 
-export function getWalletClient(rpcUrl: string) {
-  const privKey = process.env["PRIVATE_KEY"];
+export async function getWalletClient(rpcUrl: string) {
+  let privKey = process.env["PRIVATE_KEY"];
+
+  if (!privKey && process.env["ETH_KEYSTORE"]) {
+    // Use keystore if setup
+    const result = Bun.spawnSync(
+      ["cast", "wallet", "decrypt-keystore", process.env["ETH_KEYSTORE"]],
+      {
+        stdin: "inherit",
+        stdout: "pipe",
+        stderr: "inherit",
+      },
+    );
+
+    if (result.exitCode !== 0) {
+      console.error("Error: Failed to decrypt keystore");
+      process.exit(1);
+    }
+
+    const output = result.stdout.toString().trim();
+    const match = output.match(/0x[0-9a-fA-F]+/);
+    if (!match) {
+      console.error("Error: Could not parse private key from keystore output");
+      process.exit(1);
+    }
+    privKey = match[0];
+  }
+
   if (!privKey) {
-    console.error("Error: PRIVATE_KEY is not set");
+    console.error(
+      "Error: No private key available. Set PRIVATE_KEY or ETH_KEYSTORE",
+    );
     process.exit(1);
   }
   const account = privateKeyToAccount(privKey as Hex);
@@ -35,13 +63,12 @@ export function getWalletClient(rpcUrl: string) {
 }
 
 export function getTendrilAddress(): Address {
-  const opts = program.opts();
-  const root = opts.root as Address | undefined;
+  const root = program.opts().root as Address | undefined;
   if (!root) {
     console.error("Error: --root or ROOT env var is required");
     process.exit(1);
   }
-  const rootChainId = getRootChainId(opts.mainnet);
+  const rootChainId = getRootChainId();
   const constructorArgs = encodeAbiParameters(
     [{ type: "address" }, { type: "uint256" }],
     [root, rootChainId],

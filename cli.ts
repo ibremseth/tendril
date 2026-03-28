@@ -19,7 +19,8 @@ program
     "--root <address>",
     "Root admin address for the Tendril",
     process.env["ROOT"],
-  );
+  )
+  .option("--sim", "Simulate transactions without sending");
 
 program
   .command("plant")
