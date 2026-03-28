@@ -36,7 +36,7 @@ program
 
 program
   .command("addr")
-  .description("Get the Tendril deployment address of the current root")
+  .description("Get the tendril address of the current root")
   .action(address);
 
 program

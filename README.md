@@ -1,26 +1,28 @@
 # Tendril
 
-Cross-chain contract management from a single root address. Deploy and control contracts on any EVM chain through L1-to-L2 bridge messaging.
+Cross-chain contract management from a single root address. Deploy and control contracts on any EVM chain that eventually settles to Ethereum (L2, L3, L4+) through tendrils that are guaranteed to be at the same address.
 
 ## How it works
 
-Tendril is deployed to the same deterministic address on every chain via the Arachnid CREATE2 deployer. On the root chain, the admin is your wallet address. On L2 chains, the admin is the address-aliased version of the Tendril contract itself, allowing cross-chain calls to flow through native bridges (Optimism Portal, Arbitrum Inbox).
+A tendril contract is deployed to the same deterministic address on every chain via the Arachnid CREATE2 deployer. On the root chain, the admin is your wallet address. On L2(+) chains, the admin is the address-aliased version of the tendril contract itself, allowing cross-chain calls to flow through native bridges.
 
 The contract can:
 
+- **Plant** new tendrils either directly to the target chain, or through the root contract via cross-chain messages
 - **Execute** arbitrary calls on any chain through cross-chain message wrapping
 - **Deploy** upgradeable proxy contracts (ERC1967 + UUPS) at deterministic addresses
-- **Predict** deployment addresses before deploying
 
 ## Setup
 
 ```sh
 # Install dependencies
-bun install
-forge install
+bun i && forge install
 
 # Copy and fill in env
 cp .env.example .env
+
+# Plant your first tendril!
+bun tendril plant sepolia
 ```
 
 ### Environment variables
@@ -30,7 +32,7 @@ cp .env.example .env
 | `ROOT`         | Your root admin address                              |
 | `ROOT_CHAIN`   | `sepolia` or `mainnet`                               |
 | `PRIVATE_KEY`  | Private key for signing (optional if using keystore) |
-| `ETH_KEYSTORE` | Foundry keystore name (default: `default`)           |
+| `ETH_KEYSTORE` | Keystore path                                        |
 
 ## CLI
 
@@ -86,13 +88,3 @@ bun tendril --sim execute base-sepolia 0xContractAddr "pause()"
 | optimism-sepolia | OP   |
 | arbitrum         | Arb  |
 | arbitrum-sepolia | Arb  |
-
-## Contract
-
-```sh
-# Build
-forge build
-
-# Test
-forge test
-```
