@@ -2,39 +2,43 @@
 
 ![Tendril](./tendril_logo.svg)
 
-Cross-chain contract management from a single root address. Deploy and control contracts on any EVM chain that eventually settles to Ethereum (L2, L3, L4+) through tendrils that are guaranteed to be at the same address.
+One wallet. Every chain. Same address.
+
+Tendril gives you a single contract identity across every Ethereum L2. Plant a tendril to any chain and control it from your root wallet on L1 — no multisigs, no bridge UIs, no per-chain key management.
+
+## Why
+
+Managing contracts across L2s today means separate deployments, separate admin keys, and separate transactions on each chain. Tendril collapses that into one operation from one address:
+
+- **Same address everywhere** — Deterministic CREATE2 deployment means your tendril lives at the same address on every chain
+- **One root, full control** — Sign once on L1, execute on any L2 through native bridge messaging
+- **Deploy contracts cross-chain** — Spin up upgradeable proxies on any chain from your root wallet
+- **No trusted intermediaries** — Uses native L1-to-L2 bridges with address aliasing, not relayers or oracles
 
 ## How it works
 
-A tendril contract is deployed to the same deterministic address on every chain via the Arachnid CREATE2 deployer. On the root chain, the admin is your wallet address. On L2(+) chains, the admin is the address-aliased version of the tendril contract itself, allowing cross-chain calls to flow through native bridges.
+A tendril contract is deployed to the same deterministic address on every chain via the [Arachnid CREATE2 deployer](https://github.com/Arachnid/deterministic-deployment-proxy). On the root chain (L1), the admin is your wallet. On L2s, the admin is the address-aliased tendril contract, so only cross-chain messages from the parent tendril are authorized.
 
-The contract can:
-
-- **Plant** new tendrils either directly to the target chain, or through the root contract via cross-chain messages
-- **Execute** arbitrary calls on any chain through cross-chain message wrapping
-- **Deploy** upgradeable proxy contracts (ERC1967 + UUPS) at deterministic addresses
+When you execute a command, the CLI encodes your call, wraps it in the appropriate bridge message, and sends it from your root. The message flows through the bridge and executes on the target chain.
 
 ## Setup
 
 ```sh
-# Install dependencies
 bun i && forge install
-
-# Copy and fill in env
 cp .env.example .env
-
-# Plant your first tendril!
-bun tendril plant sepolia
 ```
-
-### Environment variables
 
 | Variable       | Description                                          |
 | -------------- | ---------------------------------------------------- |
 | `ROOT`         | Your root admin address                              |
 | `ROOT_CHAIN`   | `sepolia` or `mainnet`                               |
 | `PRIVATE_KEY`  | Private key for signing (optional if using keystore) |
-| `ETH_KEYSTORE` | Keystore path                                        |
+| `ETH_KEYSTORE` | Foundry keystore name                                |
+
+```sh
+# Plant your first tendril
+bun tendril plant sepolia
+```
 
 ## CLI
 
@@ -48,53 +52,38 @@ bun tendril <command> [options]
 | ------------------ | ----------------------------------------- |
 | `--root <address>` | Root admin address (overrides `ROOT` env) |
 | `--mainnet`        | Use mainnet (default: sepolia)            |
-| `--sim`            | Simulate transactions without sending     |
-| `-v, --verbose`    | Show detailed output                      |
+| `--sim`            | Simulate without sending                  |
+| `-v, --verbose`    | Detailed output                           |
 
 ### Commands
 
-**`plant <chain>`** - Plant a tendril to a new chain
+**`plant <chain>`** — Deploy a tendril to a new chain
 
 ```sh
-# Plant from root (default — sends cross-chain message)
 bun tendril plant base-sepolia
-
-# Plant directly to the target chain
-bun tendril plant --direct base-sepolia
-
+bun tendril plant --direct base-sepolia   # deploy directly, not via root
 bun tendril --mainnet plant base
 ```
 
-**`addr`** - Get the Tendril deployment address for the current root
+**`addr`** — Show the tendril address for the current root
 
 ```sh
 bun tendril addr
 ```
 
-**`execute <chain> <toAddress> <sig> [args...]`** - Execute a call through Tendril
+**`execute <chain> <to> <sig> [args...]`** — Execute a call through a tendril
 
 ```sh
-# Call a function on base-sepolia
-bun tendril execute base-sepolia 0xContractAddr "transfer(address,uint256)" 0xRecipient 1000
-
-# Send ETH with the call
-bun tendril execute base-sepolia 0xContractAddr "deposit()" --value 0.1ether
-
-# Simulate first
-bun tendril --sim execute base-sepolia 0xContractAddr "pause()"
+bun tendril execute base-sepolia 0xAddr "transfer(address,uint256)" 0xTo 1000
+bun tendril execute base-sepolia 0xAddr "deposit()" --value 0.1ether
+bun tendril --sim execute base-sepolia 0xAddr "pause()"
 ```
 
-**`deploy <chain> <impl>`** - Deploy an upgradeable proxy through a tendril
+**`deploy <chain> <impl>`** — Deploy an upgradeable proxy through a tendril
 
 ```sh
-# Deploy with no initializer
-bun tendril deploy base-sepolia 0xImplAddress
-
-# Deploy with a custom salt
-bun tendril deploy base-sepolia 0xImplAddress --salt 0x0000...0001
-
-# Deploy with an initializer
-bun tendril deploy base-sepolia 0xImplAddress --init "initialize(address)" --init-args 0xOwner
+bun tendril deploy base-sepolia 0xImpl
+bun tendril deploy base-sepolia 0xImpl --salt 0x01 --init "initialize(address)" --init-args 0xOwner
 ```
 
 ### Supported chains
