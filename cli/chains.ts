@@ -13,6 +13,7 @@ export enum ChainType {
   ROOT,
   OP,
   ARB,
+  ARB_ERC20,
 }
 
 export const CHAINS: Record<string, TendrilChain> = {
@@ -44,7 +45,7 @@ export const CHAINS: Record<string, TendrilChain> = {
     type: ChainType.ARB,
     bridge: "0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f", // Arbitrum Delayed Inbox on mainnet
   },
-  "arbitrum-sepolia": {
+  "arb-sepolia": {
     rpc: "https://arbitrum-sepolia-rpc.publicnode.com",
     id: 421614,
     parent: "sepolia",
@@ -58,7 +59,7 @@ export const CHAINS: Record<string, TendrilChain> = {
     type: ChainType.OP,
     bridge: "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed", // OP Mainnet OptimismPortal on mainnet
   },
-  "optimism-sepolia": {
+  "op-sepolia": {
     rpc: "https://optimism-sepolia-rpc.publicnode.com",
     id: 11155420,
     parent: "sepolia",

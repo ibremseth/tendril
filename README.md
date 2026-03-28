@@ -1,66 +1,98 @@
-## Foundry
+# Tendril
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+Cross-chain contract management from a single root address. Deploy and control contracts on any EVM chain through L1-to-L2 bridge messaging.
 
-Foundry consists of:
+## How it works
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+Tendril is deployed to the same deterministic address on every chain via the Arachnid CREATE2 deployer. On the root chain, the admin is your wallet address. On L2 chains, the admin is the address-aliased version of the Tendril contract itself, allowing cross-chain calls to flow through native bridges (Optimism Portal, Arbitrum Inbox).
 
-## Documentation
+The contract can:
 
-https://book.getfoundry.sh/
+- **Execute** arbitrary calls on any chain through cross-chain message wrapping
+- **Deploy** upgradeable proxy contracts (ERC1967 + UUPS) at deterministic addresses
+- **Predict** deployment addresses before deploying
 
-## Usage
+## Setup
 
-### Build
+```sh
+# Install dependencies
+bun install
+forge install
 
-```shell
-$ forge build
+# Copy and fill in env
+cp .env.example .env
 ```
 
-### Test
+### Environment variables
 
-```shell
-$ forge test
+| Variable       | Description                                          |
+| -------------- | ---------------------------------------------------- |
+| `ROOT`         | Your root admin address                              |
+| `ROOT_CHAIN`   | `sepolia` or `mainnet`                               |
+| `PRIVATE_KEY`  | Private key for signing (optional if using keystore) |
+| `ETH_KEYSTORE` | Foundry keystore name (default: `default`)           |
+
+## CLI
+
+```sh
+bun tendril <command> [options]
 ```
 
-### Format
+### Global options
 
-```shell
-$ forge fmt
+| Flag               | Description                               |
+| ------------------ | ----------------------------------------- |
+| `--root <address>` | Root admin address (overrides `ROOT` env) |
+| `--mainnet`        | Use mainnet (default: sepolia)            |
+| `--sim`            | Simulate transactions without sending     |
+| `-v, --verbose`    | Show detailed output                      |
+
+### Commands
+
+**`plant <chain>`** - Deploy Tendril to a chain
+
+```sh
+bun tendril plant base-sepolia
+bun tendril --mainnet plant base
 ```
 
-### Gas Snapshots
+**`addr`** - Get the Tendril deployment address for the current root
 
-```shell
-$ forge snapshot
+```sh
+bun tendril addr
 ```
 
-### Anvil
+**`execute <chain> <toAddress> <sig> [args...]`** - Execute a call through Tendril
 
-```shell
-$ anvil
+```sh
+# Call a function on base-sepolia
+bun tendril execute base-sepolia 0xContractAddr "transfer(address,uint256)" 0xRecipient 1000
+
+# Simulate first
+bun tendril --sim execute base-sepolia 0xContractAddr "pause()"
 ```
 
-### Deploy
+**`deploy`** - Deploy a contract through Tendril's proxy deployer (WIP)
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
+### Supported chains
 
-### Cast
+| Chain            | Type |
+| ---------------- | ---- |
+| mainnet          | Root |
+| sepolia          | Root |
+| base             | OP   |
+| base-sepolia     | OP   |
+| optimism         | OP   |
+| optimism-sepolia | OP   |
+| arbitrum         | Arb  |
+| arbitrum-sepolia | Arb  |
 
-```shell
-$ cast <subcommand>
-```
+## Contract
 
-### Help
+```sh
+# Build
+forge build
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+# Test
+forge test
 ```

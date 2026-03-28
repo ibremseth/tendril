@@ -5,11 +5,14 @@ import {
   getContractAddress,
   encodeAbiParameters,
   concat,
+  parseEther,
+  parseGwei,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import type { Hex, Address } from "viem";
 import { program } from "../cli";
 import { getRootChainId } from "./chains";
+import { error } from "./logger";
 
 export const ARACHNID = "0x4e59b44847b379578588920cA78FbF26c0B4956C" as const;
 export const ARACHNID_CODE =
@@ -39,39 +42,51 @@ export async function getWalletClient(rpcUrl: string) {
     );
 
     if (result.exitCode !== 0) {
-      console.error("Error: Failed to decrypt keystore");
+      error("Failed to decrypt keystore");
       process.exit(1);
     }
 
     const output = result.stdout.toString().trim();
     const match = output.match(/0x[0-9a-fA-F]+/);
     if (!match) {
-      console.error("Error: Could not parse private key from keystore output");
+      error("Could not parse private key from keystore output");
       process.exit(1);
     }
     privKey = match[0];
   }
 
   if (!privKey) {
-    console.error(
-      "Error: No private key available. Set PRIVATE_KEY or ETH_KEYSTORE",
-    );
+    error("No private key available. Set PRIVATE_KEY or ETH_KEYSTORE");
     process.exit(1);
   }
   const account = privateKeyToAccount(privKey as Hex);
   return createWalletClient({ account, transport: http(rpcUrl) });
 }
 
-export function getTendrilAddress(): Address {
+export function getRoot(): Address {
   const root = program.opts().root as Address | undefined;
   if (!root) {
-    console.error("Error: --root or ROOT env var is required");
+    error("--root or ROOT env var is required");
     process.exit(1);
   }
+  return root;
+}
+
+export function parseValue(input: string): bigint {
+  if (input.endsWith("ether")) {
+    return parseEther(input.slice(0, -5));
+  }
+  if (input.endsWith("gwei")) {
+    return parseGwei(input.slice(0, -4));
+  }
+  return BigInt(input);
+}
+
+export function getTendrilAddress(): Address {
   const rootChainId = getRootChainId();
   const constructorArgs = encodeAbiParameters(
     [{ type: "address" }, { type: "uint256" }],
-    [root, rootChainId],
+    [getRoot(), rootChainId],
   );
   const initCode = concat([BYTECODE, constructorArgs]);
 

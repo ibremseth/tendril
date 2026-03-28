@@ -2,9 +2,36 @@ import { encodeFunctionData, parseAbiItem, isAddress } from "viem";
 import type { Hex, Address } from "viem";
 
 import { program } from "../cli";
-import { getClient, getWalletClient, getTendrilAddress } from "./utils";
+import {
+  getClient,
+  getWalletClient,
+  getTendrilAddress,
+  getRoot,
+  parseValue,
+} from "./utils";
 import { parseChain, getRpcUrl, ChainType, getRootChainId } from "./chains";
+import { verbose, success, error } from "./logger";
 import type { TendrilChain } from "./chains";
+
+const ARB_ERC20_INBOX_ABI = [
+  {
+    name: "unsafeCreateRetryableTicket",
+    type: "function",
+    inputs: [
+      { name: "to", type: "address" },
+      { name: "l2CallValue", type: "uint256" },
+      { name: "maxSubmissionCost", type: "uint256" },
+      { name: "excessFeeRefundAddress", type: "address" },
+      { name: "callValueRefundAddress", type: "address" },
+      { name: "gasLimit", type: "uint256" },
+      { name: "maxFeePerGas", type: "uint256" },
+      { name: "tokenTotalFeeAmount", type: "uint256" },
+      { name: "data", type: "bytes" },
+    ],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "nonpayable",
+  },
+] as const;
 
 const ARB_INBOX_ABI = [
   {
@@ -18,7 +45,6 @@ const ARB_INBOX_ABI = [
       { name: "callValueRefundAddress", type: "address" },
       { name: "gasLimit", type: "uint256" },
       { name: "maxFeePerGas", type: "uint256" },
-      { name: "tokenTotalFeeAmount", type: "uint256" },
       { name: "data", type: "bytes" },
     ],
     outputs: [{ name: "", type: "uint256" }],
@@ -60,9 +86,11 @@ export async function execute(
   rawToAddress: string,
   sig: string,
   args: string[],
+  opts: { value?: string },
 ) {
+  const value = parseValue(opts.value || "0");
   if (!isAddress(rawToAddress)) {
-    console.error(`Error: Invalid address: ${rawToAddress}`);
+    error(`Invalid address: ${rawToAddress}`);
     process.exit(1);
   }
   const toAddress: Address = rawToAddress;
@@ -77,11 +105,6 @@ export async function execute(
     args: args.length > 0 ? args : undefined,
   });
 
-  const tendrilAddress = getTendrilAddress();
-  console.log("Tendril:", tendrilAddress);
-  console.log("Target:", toAddress);
-  console.log("Call:", sig, args.join(" "));
-
   // Encode the outer call to Tendril.execute(dest, data)
   const executeCalldata = encodeFunctionData({
     abi: TENDRIL_EXECUTE_ABI,
@@ -89,48 +112,81 @@ export async function execute(
     args: [toAddress, innerCalldata],
   });
 
-  let calldata = executeCalldata;
+  await executeRaw({
+    chain,
+    toAddress: getTendrilAddress(),
+    rawData: executeCalldata,
+    rawValue: value,
+  });
+}
+
+export async function executeRaw({
+  chain,
+  toAddress,
+  rawData,
+  rawValue,
+  gasLimit,
+}: {
+  chain: TendrilChain;
+  toAddress: Address;
+  rawData: Hex;
+  rawValue?: bigint;
+  gasLimit?: bigint;
+}) {
+  const tendrilAddress = getTendrilAddress();
+  verbose("Tendril:", tendrilAddress);
+  verbose("Target:", toAddress);
+  verbose("Data:", rawData);
+
+  let calldata = rawData;
   let currentChain = chain;
+  let finalValue = BigInt(0);
+
   while (currentChain.parent != "") {
-    const wrappedCall = wrap(currentChain, {
-      toAddress: tendrilAddress,
-      value: BigInt(0), // TODO: Add cli param for this
-      gasLimit: BigInt(500_000), // TODO: Do this better
+    const { data, value } = wrap(currentChain, {
+      toAddress,
+      value: rawValue ?? BigInt(0), // TODO: Add cli param for this
+      gasLimit: gasLimit ?? BigInt(500_000), // TODO: Do this better
       data: calldata,
       refundAddress: tendrilAddress,
     });
+    finalValue += value;
     calldata = encodeFunctionData({
       abi: TENDRIL_EXECUTE_ABI,
       functionName: "execute",
-      args: [chain.bridge, wrappedCall],
+      args: [chain.bridge, data],
     });
 
     currentChain = parseChain(currentChain.parent);
   }
 
   if (BigInt(currentChain.id) !== getRootChainId()) {
-    console.error(`Error: Wrong root for target chain`);
+    error("Wrong root for target chain");
     process.exit(1);
   }
 
-  console.log("Final calldata:", calldata);
+  verbose("Final calldata:", calldata);
 
   if (program.opts().sim) {
     const client = getClient(getRpcUrl(currentChain));
     const result = await client.call({
+      account: getRoot(),
       to: tendrilAddress,
       data: calldata,
+      value: finalValue,
     });
-    console.log("Simulation success:", result);
+    success("Simulation passed");
+    verbose("Result:", result);
   } else {
     const wallet = await getWalletClient(getRpcUrl(currentChain));
-    console.log("Sender:", wallet.account!.address);
+    verbose("Sender:", wallet.account!.address);
     const result = await wallet.sendTransaction({
       chain: { id: currentChain.id } as any,
       to: tendrilAddress,
       data: calldata,
+      value: finalValue,
     });
-    console.log("Transaction:", result);
+    success("Transaction sent:", result);
   }
 }
 
@@ -144,23 +200,34 @@ type WrapInput = {
   refundAddress: Address;
 };
 
-function wrap(chain: TendrilChain, input: WrapInput) {
+function wrap(
+  chain: TendrilChain,
+  input: WrapInput,
+): { data: Hex; value: bigint } {
   switch (chain.type) {
     case ChainType.OP:
       return wrapOp(input);
     case ChainType.ARB:
       return wrapArb(input);
+    case ChainType.ARB_ERC20:
+      return wrapArbERC20(input);
     default:
       throw Error(`Unwrappable chain: ${chain.type}`);
   }
 }
 
-function wrapOp({ toAddress, value, gasLimit, data }: WrapInput) {
-  return encodeFunctionData({
-    abi: OPTIMISM_PORTAL_ABI,
-    functionName: "depositTransaction",
-    args: [toAddress, value, gasLimit, false, data],
-  });
+function wrapOp({ toAddress, value, gasLimit, data }: WrapInput): {
+  data: Hex;
+  value: bigint;
+} {
+  return {
+    data: encodeFunctionData({
+      abi: OPTIMISM_PORTAL_ABI,
+      functionName: "depositTransaction",
+      args: [toAddress, value, gasLimit, false, data],
+    }),
+    value,
+  };
 }
 
 function wrapArb({
@@ -170,23 +237,58 @@ function wrapArb({
   data,
   refundAddress,
 }: WrapInput) {
-  // TODO: Calculate these well
-  const maxFeePerGas = BigInt(0); // << Need to get from chain? Or hardcode high value
-  const tokenTotalFeeAmount = BigInt(0); // << maxSubmissionCost + l2CallValue + gasLimit * maxFeePerGas
+  // Estimate submission cost: (1400 + 6 * dataBytes) * baseFee
+  const dataBytes = BigInt(data.length / 2 - 1); // hex string to byte count
+  const baseFee = 30n * BigInt(1e9); // 30 gwei — conservative L1 estimate
+  const maxSubmissionCost = (1400n + 6n * dataBytes) * baseFee;
+  const maxFeePerGas = BigInt(1e9); // 1 gwei
 
-  return encodeFunctionData({
-    abi: ARB_INBOX_ABI,
-    functionName: "unsafeCreateRetryableTicket",
-    args: [
-      toAddress,
-      value,
-      BigInt(0), // 0 for ERC20 chains
-      refundAddress,
-      refundAddress,
-      gasLimit,
-      maxFeePerGas,
-      tokenTotalFeeAmount,
-      data,
-    ],
-  });
+  return {
+    data: encodeFunctionData({
+      abi: ARB_INBOX_ABI,
+      functionName: "unsafeCreateRetryableTicket",
+      args: [
+        toAddress,
+        value,
+        maxSubmissionCost,
+        refundAddress,
+        refundAddress,
+        gasLimit,
+        maxFeePerGas,
+        data,
+      ],
+    }),
+    value: maxSubmissionCost + value + gasLimit * maxFeePerGas,
+  };
+}
+
+function wrapArbERC20({
+  toAddress,
+  value,
+  gasLimit,
+  data,
+  refundAddress,
+}: WrapInput) {
+  // Hardcoded high — excess refunds to the Tendril contract
+  const maxFeePerGas = BigInt(1e9); // 1 gwei
+  const tokenTotalFeeAmount = value + gasLimit * maxFeePerGas;
+
+  return {
+    data: encodeFunctionData({
+      abi: ARB_ERC20_INBOX_ABI,
+      functionName: "unsafeCreateRetryableTicket",
+      args: [
+        toAddress,
+        value,
+        BigInt(0), // This is hardcoded to 0 for ERC20 chains
+        refundAddress,
+        refundAddress,
+        gasLimit,
+        maxFeePerGas,
+        tokenTotalFeeAmount,
+        data,
+      ],
+    }),
+    value: BigInt(0),
+  };
 }
