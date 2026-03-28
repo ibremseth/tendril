@@ -56,6 +56,11 @@ program
 program
   .command("deploy")
   .description("Deploy a contract through a tendril's proxy deployer")
+  .argument("<chain>", `Target chain (${Object.keys(CHAINS).join(", ")})`)
+  .argument("<impl>", "Implementation contract address")
+  .option("--salt <bytes32>", "CREATE2 salt", "0x" + "00".repeat(32))
+  .option("--init <sig>", 'Initializer signature (e.g. "initialize(address)")')
+  .option("--init-args <args...>", "Initializer arguments (comma-separated)")
   .action(deploy);
 
 program.parse();

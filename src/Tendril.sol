@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity 0.8.28;
 
 import {Create2} from "@openzeppelin/contracts/utils/Create2.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 contract Seed is UUPSUpgradeable {
+    function init() external {}
     function _authorizeUpgrade(address) internal override {}
 }
 
@@ -43,8 +44,11 @@ contract Tendril {
     }
 
     function deploy(bytes32 salt, address impl, bytes calldata init) external onlyAdmin {
-        address deployAddress =
-            Create2.deploy(0, salt, abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(SEED, "")));
+        address deployAddress = Create2.deploy(
+            0,
+            salt,
+            abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(SEED, abi.encodeWithSignature("init()")))
+        );
         (bool success, bytes memory result) =
             deployAddress.call(abi.encodeWithSignature("upgradeToAndCall(address,bytes)", impl, init));
         if (!success) {
@@ -57,7 +61,10 @@ contract Tendril {
 
     function predict(bytes32 salt) external view returns (address) {
         return Create2.computeAddress(
-            salt, keccak256(abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(SEED, "")))
+            salt,
+            keccak256(
+                abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(SEED, abi.encodeWithSignature("init()")))
+            )
         );
     }
 

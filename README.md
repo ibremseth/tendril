@@ -51,10 +51,15 @@ bun tendril <command> [options]
 
 ### Commands
 
-**`plant <chain>`** - Deploy Tendril to a chain
+**`plant <chain>`** - Plant a tendril to a new chain
 
 ```sh
+# Plant from root (default — sends cross-chain message)
 bun tendril plant base-sepolia
+
+# Plant directly to the target chain
+bun tendril plant --direct base-sepolia
+
 bun tendril --mainnet plant base
 ```
 
@@ -70,11 +75,25 @@ bun tendril addr
 # Call a function on base-sepolia
 bun tendril execute base-sepolia 0xContractAddr "transfer(address,uint256)" 0xRecipient 1000
 
+# Send ETH with the call
+bun tendril execute base-sepolia 0xContractAddr "deposit()" --value 0.1ether
+
 # Simulate first
 bun tendril --sim execute base-sepolia 0xContractAddr "pause()"
 ```
 
-**`deploy`** - Deploy a contract through Tendril's proxy deployer (WIP)
+**`deploy <chain> <impl>`** - Deploy an upgradeable proxy through a tendril
+
+```sh
+# Deploy with no initializer
+bun tendril deploy base-sepolia 0xImplAddress
+
+# Deploy with a custom salt
+bun tendril deploy base-sepolia 0xImplAddress --salt 0x0000...0001
+
+# Deploy with an initializer
+bun tendril deploy base-sepolia 0xImplAddress --init "initialize(address)" --init-args 0xOwner
+```
 
 ### Supported chains
 
