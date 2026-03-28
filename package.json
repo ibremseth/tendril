@@ -4,10 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "deploy": "bun run scripts/deploy.ts",
-    "execute": "bun run scripts/execute.ts",
-    "plant": "bun run scripts/plant.ts",
-    "predict": "bun run scripts/predict.ts"
+    "tendril": "bun run cli.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -16,6 +13,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "commander": "^14.0.3",
     "viem": "^2.47.6"
   }
 }

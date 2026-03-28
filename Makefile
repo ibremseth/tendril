@@ -1,2 +1,0 @@
-deploy:
-	./scripts/deploy.sh
