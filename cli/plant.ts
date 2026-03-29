@@ -10,15 +10,16 @@ import {
   SALT,
   getRoot,
 } from "./utils";
-import { parseChain, getRpcUrl, getRootChainId, ChainType } from "./chains";
-import { verbose, success, error, info } from "./logger";
+import { parseChain, getRootChainId, ChainType } from "./chains";
+import { printContext, verbose, success, error, info } from "./logger";
 import { executeRaw } from "./execute";
 
 export async function plant(chainName: string, opts: { direct?: boolean }) {
   const chain = parseChain(chainName);
-  const client = getClient(getRpcUrl(chain));
+  printContext(chain);
+  const client = getClient(chain.rpc);
 
-  const tendrilAddress = getTendrilAddress();
+  const tendrilAddress = getTendrilAddress(chain);
   const existingCode = await client.getCode({ address: tendrilAddress });
   if (existingCode && existingCode !== "0x") {
     error(`Tendril already deployed at ${tendrilAddress} on ${chainName}`);
@@ -35,11 +36,11 @@ export async function plant(chainName: string, opts: { direct?: boolean }) {
 
   const constructorArgs = encodeAbiParameters(
     [{ type: "address" }, { type: "uint256" }],
-    [getRoot(), getRootChainId()],
+    [getRoot(), getRootChainId(chain)],
   );
   const deployData = concat([SALT, BYTECODE, constructorArgs]);
 
-  if (opts.direct || BigInt(chain.id) === getRootChainId()) {
+  if (opts.direct || chain.type === ChainType.ROOT) {
     info("Planting new tendril directly");
     if (program.opts().sim) {
       const client = getClient(chain.rpc);

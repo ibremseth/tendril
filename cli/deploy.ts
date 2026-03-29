@@ -3,7 +3,7 @@ import type { Hex, Address } from "viem";
 
 import { getTendrilAddress } from "./utils";
 import { parseChain } from "./chains";
-import { verbose, error } from "./logger";
+import { printContext, verbose, error } from "./logger";
 import { executeRaw } from "./execute";
 
 const TENDRIL_DEPLOY_ABI = [
@@ -25,12 +25,13 @@ export async function deploy(
   rawImpl: string,
   opts: { salt?: string; init?: string; initArgs?: string },
 ) {
+  const chain = parseChain(chainName);
+  printContext(chain);
   if (!isAddress(rawImpl)) {
     error(`Invalid implementation address: ${rawImpl}`);
     process.exit(1);
   }
   const impl: Address = rawImpl;
-  const chain = parseChain(chainName);
   const salt = (opts.salt || "0x" + "00".repeat(32)) as Hex;
 
   // Encode initializer calldata if provided
@@ -57,7 +58,7 @@ export async function deploy(
 
   await executeRaw({
     chain,
-    toAddress: getTendrilAddress(),
+    toAddress: getTendrilAddress(chain),
     rawData: deployCalldata,
   });
 }

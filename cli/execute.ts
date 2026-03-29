@@ -9,8 +9,8 @@ import {
   getRoot,
   parseValue,
 } from "./utils";
-import { parseChain, getRpcUrl, ChainType, getRootChainId } from "./chains";
-import { verbose, success, error } from "./logger";
+import { parseChain, ChainType } from "./chains";
+import { printContext, verbose, success, error } from "./logger";
 import type { TendrilChain } from "./chains";
 
 // const ARB_ERC20_INBOX_ABI = [
@@ -88,13 +88,14 @@ export async function execute(
   args: string[],
   opts: { value?: string },
 ) {
+  const chain = parseChain(chainName);
+  printContext(chain);
   const value = parseValue(opts.value || "0");
   if (!isAddress(rawToAddress)) {
     error(`Invalid address: ${rawToAddress}`);
     process.exit(1);
   }
   const toAddress: Address = rawToAddress;
-  const chain = parseChain(chainName);
 
   // Parse the function signature into an ABI item
   const abiItem = parseAbiItem(`function ${sig}`);
@@ -114,7 +115,7 @@ export async function execute(
 
   await executeRaw({
     chain,
-    toAddress: getTendrilAddress(),
+    toAddress: getTendrilAddress(chain),
     rawData: executeCalldata,
     rawValue: value,
   });
@@ -133,7 +134,7 @@ export async function executeRaw({
   rawValue?: bigint;
   gasLimit?: bigint;
 }) {
-  const tendrilAddress = getTendrilAddress();
+  const tendrilAddress = getTendrilAddress(chain);
   verbose("Tendril:", tendrilAddress);
   verbose("Target:", toAddress);
   verbose("Data:", rawData);
@@ -160,15 +161,10 @@ export async function executeRaw({
     currentChain = parseChain(currentChain.parent);
   }
 
-  if (BigInt(currentChain.id) !== getRootChainId()) {
-    error("Wrong root for target chain");
-    process.exit(1);
-  }
-
   verbose("Final calldata:", calldata);
 
   if (program.opts().sim) {
-    const client = getClient(getRpcUrl(currentChain));
+    const client = getClient(currentChain.rpc);
     const result = await client.call({
       account: getRoot(),
       to: tendrilAddress,
@@ -178,7 +174,7 @@ export async function executeRaw({
     success("Simulation passed");
     verbose("Result:", result);
   } else {
-    const wallet = await getWalletClient(getRpcUrl(currentChain));
+    const wallet = await getWalletClient(currentChain.rpc);
     verbose("Sender:", wallet.account!.address);
     const result = await wallet.sendTransaction({
       chain: { id: currentChain.id } as any,

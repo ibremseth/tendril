@@ -11,7 +11,7 @@ import {
 import { privateKeyToAccount } from "viem/accounts";
 import type { Hex, Address } from "viem";
 import { program } from "../cli";
-import { getRootChainId } from "./chains";
+import { getRootChainId, type TendrilChain } from "./chains";
 import { error } from "./logger";
 
 export const ARACHNID = "0x4e59b44847b379578588920cA78FbF26c0B4956C" as const;
@@ -82,8 +82,8 @@ export function parseValue(input: string): bigint {
   return BigInt(input);
 }
 
-export function getTendrilAddress(): Address {
-  const rootChainId = getRootChainId();
+export function getTendrilAddress(chain: TendrilChain): Address {
+  const rootChainId = getRootChainId(chain);
   const constructorArgs = encodeAbiParameters(
     [{ type: "address" }, { type: "uint256" }],
     [getRoot(), rootChainId],

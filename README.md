@@ -61,8 +61,6 @@ bun tendril <command> [options]
 
 ```sh
 bun tendril plant base-sepolia
-bun tendril plant --direct base-sepolia   # deploy directly, not via root
-bun tendril --mainnet plant base
 ```
 
 **`addr`** — Show the tendril address for the current root
@@ -75,26 +73,23 @@ bun tendril addr
 
 ```sh
 bun tendril execute base-sepolia 0xAddr "transfer(address,uint256)" 0xTo 1000
-bun tendril execute base-sepolia 0xAddr "deposit()" --value 0.1ether
-bun tendril --sim execute base-sepolia 0xAddr "pause()"
 ```
 
 **`deploy <chain> <impl>`** — Deploy an upgradeable proxy through a tendril
 
 ```sh
-bun tendril deploy base-sepolia 0xImpl
 bun tendril deploy base-sepolia 0xImpl --salt 0x01 --init "initialize(address)" --init-args 0xOwner
 ```
 
 ### Supported chains
 
-| Chain            | Type |
-| ---------------- | ---- |
-| mainnet          | Root |
-| sepolia          | Root |
-| base             | OP   |
-| base-sepolia     | OP   |
-| optimism         | OP   |
-| optimism-sepolia | OP   |
-| arbitrum         | Arb  |
-| arbitrum-sepolia | Arb  |
+| Chain        | Type |
+| ------------ | ---- |
+| mainnet      | Root |
+| sepolia      | Root |
+| base         | OP   |
+| base-sepolia | OP   |
+| optimism     | OP   |
+| op-sepolia   | OP   |
+| arbitrum     | Arb  |
+| arb-sepolia  | Arb  |

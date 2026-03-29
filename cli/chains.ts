@@ -1,5 +1,5 @@
-import { program } from "../cli";
 import type { Address } from "viem";
+import { error } from "./logger";
 
 export type TendrilChain = {
   rpc: string;
@@ -78,18 +78,16 @@ export const CHAINS: Record<string, TendrilChain> = {
 export function parseChain(name: string): TendrilChain {
   const chain = CHAINS[name];
   if (!chain) {
-    console.error(
-      `Unknown chain: ${name}\nAvailable: ${Object.keys(CHAINS).join(", ")}`,
-    );
+    error(`Unknown chain: ${name}\nAvailable: ${Object.keys(CHAINS).join(", ")}`);
     process.exit(1);
   }
   return chain;
 }
 
-export function getRootChainId(): bigint {
-  return program.opts().mainnet ? 1n : 11155111n;
-}
-
-export function getRpcUrl(chain: TendrilChain) {
-  return chain.rpc;
+export function getRootChainId(chain: TendrilChain): bigint {
+  let c = chain;
+  while (c.type !== ChainType.ROOT) {
+    c = parseChain(c.parent);
+  }
+  return BigInt(c.id);
 }

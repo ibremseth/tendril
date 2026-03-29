@@ -1,4 +1,5 @@
 import { program } from "../cli";
+import { getRootChainId, type TendrilChain } from "./chains";
 
 // Tendril palette — RGB escape sequences
 const rgb = (r: number, g: number, b: number) => (s: string) =>
@@ -15,14 +16,15 @@ export const c = {
   bold: (s: string) => `\x1b[1m${s}\x1b[0m`,
 };
 
-export function printContext() {
+export function printContext(chain: TendrilChain) {
   const opts = program.opts();
   const root = opts.root || c.accent("(not set)");
-  const network = opts.mainnet
-    ? c.bold(c.foreground("mainnet (1)"))
-    : c.blue("sepolia (11155111)");
+  const network =
+    getRootChainId(chain) === BigInt(1)
+      ? c.bold(c.foreground("mainnet (1)"))
+      : c.blue("sepolia (11155111)");
   console.log(c.darkGreen("───────────────────────────────────────"));
-  console.log(`  ${c.muted("Root:")}    ${root}`);
+  console.log(`  ${c.muted("Root:")}  ${root}`);
   console.log(`  ${c.muted("Network:")} ${network}`);
   console.log(c.darkGreen("───────────────────────────────────────"));
   console.log();
@@ -46,14 +48,6 @@ export function error(...args: unknown[]) {
   console.error(c.bold(c.foreground("Error:")), ...args);
 }
 
-export function network(s: string) {
-  return c.blue(s);
-}
-
 export function highlight(s: string) {
   return c.accent(s);
-}
-
-export function hint(s: string) {
-  return c.muted(s);
 }

@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { CHAINS } from "./cli/chains";
-import { printContext, c } from "./cli/logger";
+import { c } from "./cli/logger";
 import { plant } from "./cli/plant";
 import { address } from "./cli/address";
 import { execute } from "./cli/execute";
@@ -27,18 +27,12 @@ program
     outputError: (str, write) => write(c.bold(c.foreground(str))),
   })
   .option(
-    "--mainnet",
-    "Use mainnet (default: sepolia)",
-    process.env["ROOT_CHAIN"] === "mainnet",
-  )
-  .option(
     "--root <address>",
     "Root admin address for the tendrils",
     process.env["ROOT"],
   )
   .option("--sim", "Simulate transactions without sending")
-  .option("-v, --verbose", "Show detailed output")
-  .hook("preAction", () => printContext());
+  .option("-v, --verbose", "Show detailed output");
 
 program
   .command("plant")
@@ -52,6 +46,10 @@ program
 program
   .command("addr")
   .description("Get the tendril address of the current root")
+  .option(
+    "-t, --testnet",
+    "Get tendril address rooted in sepolia (default: ethereum mainnet)",
+  )
   .action(address);
 
 program
@@ -63,7 +61,7 @@ program
   .argument("[args...]", "Function arguments")
   .option(
     "--value <amount>",
-    'ETH value to send (e.g. "0.1ether", "100gwei", "1000000wei")',
+    'ETH value to send (e.g. "0.1ether", "100gwei", "1000000")',
     "0",
   )
   .action(execute);
