@@ -51,7 +51,6 @@ bun tendril <command> [options]
 | Flag               | Description                               |
 | ------------------ | ----------------------------------------- |
 | `--root <address>` | Root admin address (overrides `ROOT` env) |
-| `--mainnet`        | Use mainnet (default: sepolia)            |
 | `--sim`            | Simulate without sending                  |
 | `-v, --verbose`    | Detailed output                           |
 
@@ -87,7 +86,7 @@ bun tendril deploy base-sepolia 0xImpl --salt 0x01 --init "initialize(address)" 
 bun tendril inspect
 ```
 
-### Supported chains
+### Configured Chains
 
 | Chain        | Type |
 | ------------ | ---- |
@@ -99,3 +98,7 @@ bun tendril inspect
 | op-sepolia   | OP   |
 | arbitrum     | Arb  |
 | arb-sepolia  | Arb  |
+
+## Support
+
+If this is useful to you: [`0x15AaC`](https://blockscan.com/address/0x15AaC375975D34f3F9d6Ada31702b14eA1248714)
