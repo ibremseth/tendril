@@ -81,6 +81,12 @@ bun tendril execute base-sepolia 0xAddr "transfer(address,uint256)" 0xTo 1000
 bun tendril deploy base-sepolia 0xImpl --salt 0x01 --init "initialize(address)" --init-args 0xOwner
 ```
 
+**`inspect`** — Show deployment status across all chains
+
+```sh
+bun tendril inspect
+```
+
 ### Supported chains
 
 | Chain        | Type |

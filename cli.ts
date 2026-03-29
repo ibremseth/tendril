@@ -5,6 +5,7 @@ import { plant } from "./cli/plant";
 import { address } from "./cli/address";
 import { execute } from "./cli/execute";
 import { deploy } from "./cli/deploy";
+import { inspect } from "./cli/inspect";
 
 export const program = new Command();
 
@@ -75,5 +76,14 @@ program
   .option("--init <sig>", 'Initializer signature (e.g. "initialize(address)")')
   .option("--init-args <args...>", "Initializer arguments (comma-separated)")
   .action(deploy);
+
+program
+  .command("inspect")
+  .description("Show deployment status of tendrils across all chains")
+  .option(
+    "-t, --testnet",
+    "Inspect sepolia tendrils (default: ethereum mainnet)",
+  )
+  .action(inspect);
 
 program.parse();
