@@ -31,9 +31,9 @@ cp .env.example .env
 | Variable       | Description                                          |
 | -------------- | ---------------------------------------------------- |
 | `ROOT`         | Your root admin address                              |
-| `ROOT_CHAIN`   | `sepolia` or `mainnet`                               |
 | `PRIVATE_KEY`  | Private key for signing (optional if using keystore) |
 | `ETH_KEYSTORE` | Foundry keystore name                                |
+| `PLANT_SEED`   | CREATE2 salt for planting (default: zero)            |
 
 ```sh
 # Plant your first tendril

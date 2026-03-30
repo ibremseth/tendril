@@ -1,5 +1,6 @@
 import { program } from "../cli";
 import { getRootChainId, type TendrilChain } from "./chains";
+import { getPlantSeed, ZERO_SEED } from "./utils";
 
 // Tendril palette — RGB escape sequences
 const rgb = (r: number, g: number, b: number) => (s: string) =>
@@ -25,6 +26,12 @@ export function printContext(chain: TendrilChain) {
       : c.blue("sepolia (11155111)");
   console.log(c.darkGreen("───────────────────────────────────────"));
   console.log(`  ${c.muted("Root:")}  ${root}`);
+  if (getPlantSeed() !== ZERO_SEED) {
+    const seed = getPlantSeed();
+    console.log(
+      `   ${c.muted("└")} ${c.muted("Seed:")} ${seed.slice(0, 6)}...${seed.slice(-4)}`,
+    );
+  }
   console.log(`  ${c.muted("Network:")} ${network}`);
   console.log(c.darkGreen("───────────────────────────────────────"));
   console.log();

@@ -40,8 +40,10 @@ program
   .description(
     "Plant a tendril to a new chain via the root (using the Arachnid CREATE2 deployer)",
   )
-  .argument("<chain>", `Target chain (${Object.keys(CHAINS).join(", ")})`)
+  .argument("[chain]", `Target chain (${Object.keys(CHAINS).join(", ")})`)
   .option("-d, --direct", "Plant the new tendril directly to the chain")
+  .option("-a, --all", "Plant to all undeployed chains")
+  .option("-t, --testnet", "Target testnet chains (default: mainnet, used with --all)")
   .action(plant);
 
 program

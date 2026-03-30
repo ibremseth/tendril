@@ -5,14 +5,14 @@ import {Create2} from "@openzeppelin/contracts/utils/Create2.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
-contract Seed is UUPSUpgradeable {
+contract Husk is UUPSUpgradeable {
     function init() external {}
     function _authorizeUpgrade(address) internal override {}
 }
 
 contract Tendril {
     address public immutable ADMIN;
-    address public immutable SEED;
+    address public immutable HUSK;
 
     event NewDeployment(address deployAddress);
 
@@ -22,7 +22,7 @@ contract Tendril {
         } else {
             ADMIN = address(uint160(address(this)) + uint160(0x1111000000000000000000000000000000001111));
         }
-        SEED = address(new Seed());
+        HUSK = address(new Husk());
     }
 
     modifier onlyAdmin() {
@@ -47,7 +47,7 @@ contract Tendril {
         address deployAddress = Create2.deploy(
             0,
             salt,
-            abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(SEED, abi.encodeWithSignature("init()")))
+            abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(HUSK, abi.encodeWithSignature("init()")))
         );
         (bool success, bytes memory result) =
             deployAddress.call(abi.encodeWithSignature("upgradeToAndCall(address,bytes)", impl, init));
@@ -63,7 +63,7 @@ contract Tendril {
         return Create2.computeAddress(
             salt,
             keccak256(
-                abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(SEED, abi.encodeWithSignature("init()")))
+                abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(HUSK, abi.encodeWithSignature("init()")))
             )
         );
     }

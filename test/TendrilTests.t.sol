@@ -45,9 +45,9 @@ contract TendrilOnRootChainTest is Test {
         assertEq(tendril.ADMIN(), root);
     }
 
-    function test_seedIsDeployed() public view {
-        assertTrue(tendril.SEED() != address(0));
-        assertTrue(address(tendril.SEED()).code.length > 0);
+    function test_huskIsDeployed() public view {
+        assertTrue(tendril.HUSK() != address(0));
+        assertTrue(address(tendril.HUSK()).code.length > 0);
     }
 
     function test_executeAsAdmin() public {
